@@ -47,21 +47,37 @@ public class ServerThread extends Thread {
     public void run() {
         try {
             serverSocket = new ServerSocket(Constants.SERVER_PORT);
+            Log.v(Constants.TAG, "Running on port " + Constants.SERVER_PORT);
             while (isRunning) {
-                Socket socket = serverSocket.accept();
+                final Socket socket = serverSocket.accept();
                 Log.v(Constants.TAG, "Connection opened with " + socket.getInetAddress() + ":" + socket.getLocalPort());
 
                 // TODO exercise 5c
                 // simulate the fact the communication routine between the server and the client takes 3 seconds
-
-                PrintWriter printWriter = Utilities.getWriter(socket);
-                printWriter.println(serverTextEditText.getText().toString());
-                socket.close();
-                Log.v(Constants.TAG, "Connection closed");
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    Log.e(Constants.TAG, "An exception has occurred: " + e.getMessage());
+                    if (Constants.DEBUG) {
+                        e.printStackTrace();
+                    }
+                }
 
                 // TODO exercise 5d
                 // move the communication routine between the server and the client on a separate thread (each)
-
+                Runnable run = new Runnable() {
+                    public void run() {
+                        try {
+                            PrintWriter printWriter = Utilities.getWriter(socket);
+                            printWriter.println(serverTextEditText.getText().toString());
+                            socket.close();
+                            Log.v(Constants.TAG, "Connection closed");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                };
+                new Thread(run).start();
             }
         } catch (IOException ioException) {
             Log.e(Constants.TAG, "An exception has occurred: " + ioException.getMessage());

@@ -30,7 +30,9 @@ public class ServerThread extends Thread {
     public void stopServer() {
         isRunning = false;
         try {
-            serverSocket.close();
+            if(serverSocket != null) {
+                serverSocket.close();
+            }
         } catch (IOException ioException) {
             Log.e(Constants.TAG, "An exception has occurred: " + ioException.getMessage());
             if (Constants.DEBUG) {
